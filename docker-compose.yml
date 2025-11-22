@@ -1,0 +1,70 @@
+services:
+  laravel-reverb:
+    image: local/laravel-reverb # nama image hasil buildnya
+    build:
+      context: .
+      # dockerfile: frankenphp.Dockerfile
+      dockerfile: Dockerfile
+    container_name: laravel-reverb
+    restart: unless-stopped
+    mem_limit: 4g  # 4GB
+    cpus: 4        # 4 core
+    ports:
+      - "4500:80"  # akses via http://localhost:4500
+      - "2019:2019"  # akses via http://localhost:2019
+    environment:
+      APP_NAME: "Laravel Octane Reverb"
+      APP_ENV: production
+      APP_KEY: "base64:gUW/lUWaI7mdwXmZ/wIpYmdhOxoWBakaHpsuior/8mQ="
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:4500"
+      DB_CONNECTION: pgsql
+      DB_HOST: host.docker.internal
+      DB_DATABASE: laravel-reverb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    env_file:
+      - .env
+    volumes:
+      # - .:/app:delegated
+      - ./storage/logs:/app/storage/logs
+    command: ["--workers=8", "--host=0.0.0.0", "--port=80", "--max-requests=1000", "--caddy=/etc/caddy/Caddyfile"]  # Tambah options: workers, bind all IPs, port internal, restart setelah 500 req
+    networks:
+      - laravel_net
+
+  reverb_server:
+    image: local/laravel-reverb # Menggunakan image yang sama yang sudah dibuild
+    container_name: laravel-reverb-websocket
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    mem_limit: 4g  # 4GB
+    cpus: 4        # 4 core
+    ports:
+      - "8090:8090" # Map port Reverb dari container ke host
+    environment:
+      APP_NAME: "Laravel Reverb Websocket"
+      APP_ENV: production
+      APP_KEY: "base64:gUW/lUWaI7mdwXmZ/wIpYmdhOxoWBakaHpsuior/8mQ="
+      APP_DEBUG: "true"
+      APP_URL: "http://localhost:4500"
+      DB_CONNECTION: pgsql
+      DB_HOST: host.docker.internal
+      DB_DATABASE: laravel-reverb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    volumes:
+      - ./storage/logs:/app/storage/logs
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8090"]
+    networks:
+      - laravel_net
+
+networks:
+  laravel_net:
+    driver: bridge
+
