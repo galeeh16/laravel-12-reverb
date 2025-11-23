@@ -25,7 +25,8 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        Echo.private(`user.notifications.1`)
+        const userId = '1';
+        Echo.private(`user.notifications.${userId}`)
             .listen('.notification.created', (e) => {
                 console.log('Notification Received:', e);
             });

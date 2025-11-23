@@ -23,15 +23,15 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Invalid Data', 'data' => $validator->getMessageBag()], 422);
         }
         
-        // // 1. Simpan ke DB
-        Notification::insert([
-            'user_id' => $request->user_id,
-            'title' => $request->title,
-            'message' => $request->message,
-            'created_at' => date('Y-m-d H:i:s'),
-        ]);
+        // 1. Simpan ke DB
+        // Notification::insert([
+        //     'user_id' => $request->user_id,
+        //     'title' => $request->title,
+        //     'message' => $request->message,
+        //     'created_at' => date('Y-m-d H:i:s'),
+        // ]);
 
-        // // 2. Broadcast ke frontend real-time
+        // 2. Broadcast ke frontend real-time
         broadcast(new NotificationCreated(
             $request->user_id,
             $request->title,

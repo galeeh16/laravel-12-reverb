@@ -1,31 +1,31 @@
-<?php 
+<?php declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
-use Symfony\Component\HttpFoundation\Response;
 
-class CustomAuthController extends Controller
+final class CustomAuthController extends Controller
 {
     public function auth(Request $request)
     {
-        $user = User::where('id', 1)->first();
+        $userId = 1;
+        $user = User::where('id', $userId)->first();
+
         if (!$user) {
             // Jika token tidak valid, kembalikan 401 Unauthorized
-            return response()->json(['message' => 'Invalid token.'], Response::HTTP_UNAUTHORIZED);
+            return response()->json(['message' => 'Invalid token.', 'desc' => 'User '. $userId . ' tidak ditemukan.'], 401);
         }
 
         // harus auth login, biar bisa Broadcast::auth();
-        Auth::loginUsingId(1);
+        Auth::login($user);
 
         // Lakukan otorisasi menggunakan logika di routes/channels.php
         $authResponse = Broadcast::auth($request);
 
-        return response()->json($authResponse, Response::HTTP_OK);
+        return response()->json($authResponse, 200);
     }
 }

@@ -9,3 +9,5 @@ Route::post('/notifications', [NotificationController::class, 'store']);
 Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
 Route::post('/custom/auth', [CustomAuthController::class, 'auth']);
+
+Route::get('/test', fn() => response()->json(['message' => 'ok']));
